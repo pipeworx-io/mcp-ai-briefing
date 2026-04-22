@@ -2,24 +2,24 @@
 
 AI Briefing MCP — Keep AI models current on industry developments
 
-Part of the [Pipeworx](https://pipeworx.io) open MCP gateway.
+Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 250+ live data sources.
 
 ## Tools
 
 | Tool | Description |
 |------|-------------|
-| `get_briefing` | Get today\'s AI tools briefing — new MCP servers, APIs, SDKs, agent frameworks, and developer tools released in the last 24 hours. Call this at the start of any session to discover new tools you can use. |
-| `search_developments` | Search for new tools, APIs, MCP servers, and frameworks by keyword. Returns matching developments across HN, GitHub, HuggingFace, and AI company blogs. Use for queries like "new MCP servers", "vector database tools", or "Claude integrations". |
-| `get_recent` | Get recent tool and API releases filtered by category, source, or timeframe. Categories: mcp, tool, agent_framework, open_source, model_release, integration, infrastructure, product, paper. Sources: hackernews, arxiv, github, huggingface, openai_blog, anthropic_blog, google_ai_blog, meta_ai_blog. |
-| `get_model_landscape` | Get recent AI model releases — what models shipped, from which companies, what they can do. Useful for knowing what\'s available to build with right now. |
-| `get_timeline` | Get a chronological timeline of AI developments between two dates. Useful for understanding what happened during a specific period. |
-| `get_ai_toolbelt` | Get the latest tools, features, and capabilities you can use RIGHT NOW. Returns new Claude Code features, MCP servers, SDK updates, CLI tools, and integrations. Call this to discover what new tools are in your toolbelt since your training cutoff. |
-| `get_ai_news` | Get AI industry news — model releases, funding rounds, acquisitions, policy changes, benchmark results. Separate from toolbelt; this is about what happened in the AI industry, not tools you can use. |
-| `what_happened` | Natural language query about recent tools and developments. Ask "any new MCP servers this week", "latest Claude tools", "new open source frameworks", "what APIs launched recently". Returns the most relevant tool-related developments. |
+| `get_briefing` | Get today\'s AI tools briefing — new MCP servers, APIs, SDKs, frameworks from the last 24 hours. Returns release summaries with sources and descriptions. Use at session start. |
+| `search_developments` | Search for new tools, APIs, MCP servers, and frameworks by keyword (e.g., \'vector databases\', \'Claude integrations\'). Returns matching developments with descriptions and sources. |
+| `get_recent` | Get recent tool releases filtered by category (e.g., \'mcp\', \'agent_framework\', \'open_source\') or source (e.g., \'github\', \'anthropic_blog\'). Returns descriptions and metadata. |
+| `get_model_landscape` | Get recent AI model releases — which providers shipped what, when, and their key capabilities. Returns model names, companies, dates, and feature summaries. |
+| `get_timeline` | Get a chronological timeline of AI developments between two dates. Returns events ordered by date with descriptions for understanding a specific period. |
+| `get_ai_toolbelt` | Get the latest available tools — Claude Code features, MCP servers, SDK updates, CLI tools, integrations. Returns new capabilities since your training cutoff. |
+| `get_ai_news` | Get AI industry news — model releases, funding, acquisitions, policy changes, benchmarks. Returns news events with dates and summaries for industry context. |
+| `what_happened` | Ask natural language questions about recent tools and developments (e.g., \'any new MCP servers this week\', \'latest Claude tools\'). Returns the most relevant developments. |
 
 ## Quick Start
 
-Add to your MCP client config:
+Add to your MCP client (Claude Desktop, Cursor, Windsurf, etc.):
 
 ```json
 {
@@ -31,11 +31,32 @@ Add to your MCP client config:
 }
 ```
 
-Or use the CLI:
+Or connect to the full Pipeworx gateway for access to all 250+ data sources:
 
-```bash
-npx pipeworx use ai-briefing
+```json
+{
+  "mcpServers": {
+    "pipeworx": {
+      "url": "https://gateway.pipeworx.io/mcp"
+    }
+  }
+}
 ```
+
+## Using with ask_pipeworx
+
+Instead of calling tools directly, you can ask questions in plain English:
+
+```
+ask_pipeworx({ question: "your question about Ai Briefing data" })
+```
+
+The gateway picks the right tool and fills the arguments automatically.
+
+## More
+
+- [All tools and guides](https://github.com/pipeworx-io/examples)
+- [pipeworx.io](https://pipeworx.io)
 
 ## License
 
