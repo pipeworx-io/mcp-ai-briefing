@@ -2,7 +2,7 @@
 
 AI Briefing MCP — Keep AI models current on industry developments
 
-Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1476+ live data sources.
+Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents to 1679+ live data sources.
 
 ## Tools
 
@@ -10,8 +10,8 @@ Part of [Pipeworx](https://pipeworx.io) — an MCP gateway connecting AI agents 
 |------|-------------|
 | `get_briefing` | Get the daily AI tools digest for a given date (default: today) — new MCP servers, APIs, SDKs, and frameworks released in the last 24 hours, with summaries and source URLs. |
 | `search_developments` | Search for new tools, APIs, MCP servers, and frameworks by keyword (e.g., 'vector databases', 'Claude integrations'). Returns matching developments with descriptions and sources. |
-| `get_recent` | Retrieve AI developments from the last N days (default 7), filterable by category (e.g., model_release, paper, mcp), source (e.g., arxiv, github), and importance (low/normal/high/breaking). |
-| `get_model_landscape` | List AI model releases from the last N days (default 30). Returns model names, provider companies, release dates, feature summaries, and source URLs grouped by importance. |
+| `get_recent` | Retrieve AI developments from the last N days (default 7), filterable by category (e.g., model_release, paper, mcp), source (e.g., arxiv, github), and importance (low/normal/high/breaking). The category is a keyword label derived from the headline at ingest, not a curated classification — filtering by it narrows the feed but does not guarantee every row belongs; the response repeats this caveat whenever a category filter is applied. |
+| `get_model_landscape` | List AI model releases from the last N days (default 30). Returns model names, provider companies, release dates, feature summaries, and source URLs grouped by importance. Membership comes from the same heuristic headline label as get_recent(category=model_release), so verify the titles before quoting the list as complete. |
 | `get_timeline` | Get a chronological timeline of AI developments between two dates. Returns events ordered by date with descriptions for understanding a specific period. |
 | `get_ai_toolbelt` | Get the latest available tools — Claude Code features, MCP servers, SDK updates, CLI tools, integrations. Returns new capabilities since your training cutoff. |
 | `get_ai_news` | Get AI industry news — model releases, funding, acquisitions, policy changes, benchmarks. Returns news events with dates and summaries for industry context. |
@@ -61,9 +61,45 @@ directly, instead of just this one's:
 }
 ```
 
-Both URLs reach the same gateway and the same 1476+ data sources. The
+Both URLs reach the same gateway and the same 1679+ data sources. The
 only difference is which pack's tools are listed **directly**; `ask_pipeworx`
 reaches all of them from either one.
+
+## No MCP client? Call it over HTTP
+
+```bash
+curl -X POST https://gateway.pipeworx.io/v1/tools/get_briefing \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+No account needed for the first calls. Inspect any tool: `GET https://gateway.pipeworx.io/v1/tools/get_briefing`. Find one: `POST https://gateway.pipeworx.io/v1/tools/search_packs` with `{"query":"..."}`.
+
+## Standalone (no gateway account)
+
+This package also runs as a local stdio MCP server — no Pipeworx account, no
+gateway round-trip:
+
+```json
+{
+  "mcpServers": {
+    "ai-briefing": {
+      "command": "npx",
+      "args": ["-y", "@pipeworx/mcp-ai-briefing"]
+    }
+  }
+}
+```
+
+Or run it directly to confirm it starts:
+
+```bash
+npx -y @pipeworx/mcp-ai-briefing
+```
+
+It speaks MCP over stdin/stdout and answers `initialize`/`tools/list`/`tools/call`
+for **only** this pack's tools — none of the shared meta-tools the gateway
+connection above adds. Same source, same tools, no ask_pipeworx routing.
 
 ## Using with ask_pipeworx
 
@@ -84,13 +120,3 @@ The gateway picks the right tool and fills the arguments automatically.
 ## License
 
 MIT
-
-## No MCP client? Call it over HTTP
-
-```bash
-curl -X POST https://gateway.pipeworx.io/v1/tools/get_briefing \
-  -H 'Content-Type: application/json' \
-  -d '{}'
-```
-
-No account needed for the first calls. Inspect any tool: `GET https://gateway.pipeworx.io/v1/tools/get_briefing`. Find one: `POST https://gateway.pipeworx.io/v1/tools/search_packs` with `{"query":"..."}`.
