@@ -713,6 +713,37 @@ async function querySupabase(path: string): Promise<unknown> {
   return res.json();
 }
 
+/**
+ * fleet #3041: 4 of 5 AI-lab blog feeds were 404/403 for an unknown period
+ * and get_ai_news kept returning a clean 200 with a plausible-looking item
+ * count — a dead source read exactly like a quiet news day. The scraper
+ * (workers/ai-briefing-scraper) now writes one row per source to
+ * `ai_scrape_health` every run; this surfaces it in the response itself so
+ * a caller never has to take "no OpenAI/Anthropic/Meta/Mistral items" on
+ * faith. Failure here (table missing, query error) returns null rather
+ * than throwing — a health-surface outage must never break the main feed.
+ */
+async function getSourceHealth(): Promise<{ partial: boolean; failed_sources: string[]; checked_at: string | null } | null> {
+  try {
+    const rows = (await querySupabase(
+      `ai_scrape_health?select=source,ok,http_status,detail,checked_at&order=checked_at.desc`,
+    )) as Array<Record<string, unknown>>;
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+    const failed = rows.filter((r) => r.ok === false);
+    const newest = rows.reduce<string | null>((acc, r) => {
+      const c = r.checked_at as string | undefined;
+      return c && (!acc || c > acc) ? c : acc;
+    }, null);
+    return {
+      partial: failed.length > 0,
+      failed_sources: failed.map((r) => `${r.source}: HTTP ${r.http_status ?? 'n/a'} — ${r.detail}`),
+      checked_at: newest,
+    };
+  } catch {
+    return null;
+  }
+}
+
 const tools: McpToolExport['tools'] = [
   {
     name: 'get_briefing',
@@ -1101,15 +1132,34 @@ async function getAiNews(days: number, limit: number): Promise<unknown> {
   const newsCategories = ['model_release', 'claude_update', 'funding', 'acquisition', 'policy', 'benchmark', 'news', 'paper'];
   const catFilter = newsCategories.map((c) => `category.eq.${c}`).join(',');
 
-  const devs = await querySupabase(
-    `ai_developments?or=(${catFilter})&published_at=gte.${since}&order=published_at.desc&limit=${limit}`
-  ) as Array<Record<string, unknown>>;
+  const [devs, sources] = await Promise.all([
+    querySupabase(
+      `ai_developments?or=(${catFilter})&published_at=gte.${since}&order=published_at.desc&limit=${limit}`
+    ) as Promise<Array<Record<string, unknown>>>,
+    getSourceHealth(),
+  ]);
 
   return {
     feed: 'ai_news',
     period: `last ${days} days`,
     description: 'AI industry developments — models, funding, policy, research',
     total: devs.length,
+    // fleet #3041: a dead lab-blog feed used to read as "no news today" --
+    // this says whether the LAST scrape run actually reached every source.
+    // `sources` is omitted (not faked as healthy) when the health table
+    // could not be read, rather than claiming a status we do not have.
+    ...(sources
+      ? {
+          sources: {
+            partial: sources.partial,
+            note: sources.partial
+              ? `${sources.failed_sources.length} source(s) failed on the last scrape run -- counts above may undercount those sources, not reflect a quiet news day.`
+              : 'all tracked sources reached on the last scrape run.',
+            failed_sources: sources.failed_sources,
+            checked_at: sources.checked_at,
+          },
+        }
+      : {}),
     items: devs.map((d) => ({
       title: d.title,
       summary: d.summary,
