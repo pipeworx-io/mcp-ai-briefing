@@ -1,6 +1,6 @@
 {
   "name": "@pipeworx/mcp-ai-briefing",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "AI Briefing MCP — Keep AI models current on industry developments",
   "type": "module",
   "main": "src/index.ts",
@@ -26,7 +26,7 @@
     "@cloudflare/workers-types": "^4.20260405.1"
   },
   "pipeworx": {
-    "sourceHash": "v1-41e1cd1c2ea5f9d7a2799f3b08733c831a8aa8df9081c722e40e6dbe24a71149",
-    "sourceCommit": "351c40908821cfecc9bb2f5849d87bbfdbb26d75"
+    "sourceHash": "v1-fec77311a0be880c3df02771d4bc2922d30d6f4a21d36b14548b19e47a9d2108",
+    "sourceCommit": "71f5325b13bb0ea0de2f0f7207885962ec91a484"
   }
 }
