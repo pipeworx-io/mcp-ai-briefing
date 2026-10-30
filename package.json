@@ -1,6 +1,6 @@
 {
   "name": "@pipeworx/mcp-ai-briefing",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "AI Briefing MCP — Keep AI models current on industry developments",
   "type": "module",
   "main": "lib/index.js",
@@ -27,7 +27,7 @@
     "mode": "gateway",
     "slug": "ai-briefing",
     "gatewaySlug": "ai-briefing",
-    "sourceHash": "v1-f39ac4bc8324f3dbc4fdc6505a89e3d3e4b2f46d26633c78f361864a8aa049d0",
-    "sourceCommit": "c6136b81713e72ccb22977ca0c0cd981f8c3f081"
+    "sourceHash": "v1-4b9fa4cf09a1eae5dac3d8902d66765ccecaf73ed09261b493c41512a79be6d8",
+    "sourceCommit": "aef970216f5309cdd22a27ddfc275e472aaadac1"
   }
 }
